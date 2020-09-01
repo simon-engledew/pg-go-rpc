@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  postgresql:
+    build: ./docker/postgresql
+    network_mode: bridge
+    init: true
+    volumes:
+      - "/var/lib/postgresql/data"
+      - "pgsock:/var/run/postgresql"
+
+  socat:
+    image: alpine/socat
+    network_mode: bridge
+    init: true
+    ports:
+      - "5432:5432"
+    command: "tcp-listen:5432,fork,reuseaddr unix-connect:/var/run/postgresql/.s.PGSQL.5432"
+    volumes:
+      - "pgsock:/var/run/postgresql"
+
+volumes:
+  pgsock: {}
