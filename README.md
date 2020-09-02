@@ -4,7 +4,7 @@ unlike [postgresql-rpc](https://github.com/simon-engledew/postgresql-rpc), this 
 
 useful when creating a unidirectional data flow that involves plpgsql.
 
-golang pretends to be a postgresql-compatible server, you can then send it RPC messages and get JSON responses back:
+golang pretends to be a postgresql-compatible server using a modified example from [pgproto3](github.com/jackc/pgproto3/v2), you can then send it RPC messages and get JSON responses back:
 
 ```
 CREATE EXTENSION IF NOT EXISTS dblink;

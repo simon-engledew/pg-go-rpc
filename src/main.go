@@ -25,16 +25,16 @@ func NewBackend(conn net.Conn) *Backend {
 	return connHandler
 }
 
-func (p *Backend) Run() error {
-	defer p.Close()
+func (b *Backend) Run() error {
+	defer b.Close()
 
-	err := p.handleStartup()
+	err := b.handleStartup()
 	if err != nil {
 		return err
 	}
 
 	for {
-		msg, err := p.backend.Receive()
+		msg, err := b.backend.Receive()
 		if err != nil {
 			return fmt.Errorf("error receiving message: %w", err)
 		}
@@ -76,7 +76,7 @@ func (p *Backend) Run() error {
 
 			buf = (&pgproto3.CommandComplete{CommandTag: []byte(query.String)}).Encode(buf)
 			buf = (&pgproto3.ReadyForQuery{TxStatus: 'I'}).Encode(buf)
-			_, err = p.conn.Write(buf)
+			_, err = b.conn.Write(buf)
 		case *pgproto3.Terminate:
 			return nil
 		default:
@@ -85,8 +85,8 @@ func (p *Backend) Run() error {
 	}
 }
 
-func (p *Backend) handleStartup() error {
-	startupMessage, err := p.backend.ReceiveStartupMessage()
+func (b *Backend) handleStartup() error {
+	startupMessage, err := b.backend.ReceiveStartupMessage()
 	if err != nil {
 		return fmt.Errorf("error receiving startup message: %w", err)
 	}
@@ -95,16 +95,16 @@ func (p *Backend) handleStartup() error {
 	case *pgproto3.StartupMessage:
 		buf := (&pgproto3.AuthenticationOk{}).Encode(nil)
 		buf = (&pgproto3.ReadyForQuery{TxStatus: 'I'}).Encode(buf)
-		_, err = p.conn.Write(buf)
+		_, err = b.conn.Write(buf)
 		if err != nil {
 			return fmt.Errorf("error sending ready for query: %w", err)
 		}
 	case *pgproto3.SSLRequest:
-		_, err = p.conn.Write([]byte("N"))
+		_, err = b.conn.Write([]byte("N"))
 		if err != nil {
 			return fmt.Errorf("error sending deny SSL request: %w", err)
 		}
-		return p.handleStartup()
+		return b.handleStartup()
 	default:
 		return fmt.Errorf("unknown startup message: %#v", startupMessage)
 	}
@@ -112,8 +112,8 @@ func (p *Backend) handleStartup() error {
 	return nil
 }
 
-func (p *Backend) Close() error {
-	return p.conn.Close()
+func (b *Backend) Close() error {
+	return b.conn.Close()
 }
 
 func main() {
