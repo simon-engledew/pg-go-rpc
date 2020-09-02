@@ -2,12 +2,10 @@ package main // import "github.com/simon-engledew/pg-go-rpc/src"
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"github.com/jackc/pgproto3/v2"
 	"log"
 	"net"
-	"os"
 	"strings"
 )
 
@@ -118,21 +116,8 @@ func (p *Backend) Close() error {
 	return p.conn.Close()
 }
 
-
-var options struct {
-	listenAddress   string
-}
-
 func main() {
-	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "usage:  %s [options]\n", os.Args[0])
-		flag.PrintDefaults()
-	}
-
-	flag.StringVar(&options.listenAddress, "listen", "0.0.0.0:15432", "Listen address")
-	flag.Parse()
-
-	ln, err := net.Listen("tcp", options.listenAddress)
+	ln, err := net.Listen("tcp","0.0.0.0:15432")
 	if err != nil {
 		log.Fatal(err)
 	}

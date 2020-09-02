@@ -2,15 +2,25 @@ version: "3.8"
 services:
   postgresql:
     build: ./docker/postgresql
-    network_mode: bridge
+    networks:
+      - database
     init: true
     volumes:
       - "/var/lib/postgresql/data"
       - "pgsock:/var/run/postgresql"
 
+  service:
+    build: ./docker/service
+    init: true
+    networks:
+      - database
+    ports:
+      - "15432:15432"
+
   socat:
     image: alpine/socat
-    network_mode: bridge
+    networks:
+      - database
     init: true
     ports:
       - "5432:5432"
@@ -20,3 +30,6 @@ services:
 
 volumes:
   pgsock: {}
+
+networks:
+  database: {}
