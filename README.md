@@ -9,7 +9,7 @@ golang pretends to be a postgresql-compatible server, you can then send it RPC m
 ```
 CREATE EXTENSION IF NOT EXISTS dblink;
 
-SELECT dblink_connect('rpc', 'host=192.168.0.101 port=15432 user=admin dbname=main');
+SELECT dblink_connect('rpc', 'host=service port=15432 user=admin dbname=main');
 
 CREATE OR REPLACE FUNCTION rpc(value JSON) RETURNS JSON AS $$
 SELECT response FROM dblink('rpc', 'RPC ' || value) AS t1(response JSON)
@@ -17,3 +17,5 @@ $$ LANGUAGE SQL VOLATILE;
 
 SELECT rpc(json_build_object('moose', 'goose'));
 ```
+
+To see it in action, run `make up` to build and start the services using Docker. Then run `make test` to fire a test RPC call.
